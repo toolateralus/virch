@@ -1,19 +1,5 @@
-use crate::{opcodes::Instruction, memory::Memory};
+use crate::{opcodes::Instruction, memory::Memory, register::*};
 pub const NUM_REGISTERS : usize = 9;
-
-pub const A : usize = 0;
-pub const B : usize = 1;
-pub const C : usize = 2;
-pub const D : usize = 3;
-pub const E : usize = 4;
-pub const F : usize = 5;
-pub const G : usize = 6;
-pub const SP : usize = 7;
-pub const IP : usize = 8;
-pub const R8 : usize = 9;
-pub const R9 : usize = 10;
-pub const R10 : usize = 11;
-pub const RT : usize = 12;
 
 pub struct CPU {
     pub ip: usize,

@@ -5,10 +5,9 @@ use crate::cpu::CPU;
 mod opcodes;
 mod cpu;
 mod memory;
+mod register;
 
 use std::env;
-use std::fs::File;
-use std::io::Read;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -24,7 +23,7 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
-    use crate::{cpu::{RAX, RDI, RSI, RT}, memory::Memory, opcodes::{Instruction, ProgramBuilder}};
+    use crate::{memory::Memory, opcodes::{Instruction, ProgramBuilder}, register::*};
     use super::*;
     
     #[test]
@@ -196,7 +195,7 @@ mod tests {
         builder.build(&mut mem);
         
         let mut cpu = CPU::new();
-		cpu.write_register(RAX, 123);
+		cpu.write_register(cpu::A, 123);
 		cpu.write_register(RDI, 321);
         cpu.cycle(&mut mem);
         
