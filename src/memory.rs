@@ -1,4 +1,4 @@
-use std::{env, fs::File, io::Read};
+use std::{fs::File, io::Read};
 
 pub const MEM_SIZE : usize = 4096;
 pub struct Memory {

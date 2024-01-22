@@ -37,6 +37,8 @@ pub type Program = Vec<u8>;
 pub struct ProgramBuilder {
     program: Program,
 }
+
+#[allow(dead_code)]
 impl ProgramBuilder {
     pub fn new() -> Self {
         Self {
