@@ -58,7 +58,7 @@ mod tests {
         builder.u32(0);
         builder.u32(250);
         builder.instruction(Instruction::Load);
-        builder.u32(0);
+        builder.u32(1);
         builder.u32(250);
         builder.instruction(Instruction::Mul);
         
