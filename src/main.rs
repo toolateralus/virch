@@ -24,13 +24,15 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
-    use crate::{opcodes::{Instruction, ProgramBuilder}, memory::Memory};
+    use crate::{cpu::RT, memory::Memory, opcodes::{Instruction, ProgramBuilder}};
     use super::*;
     
     #[test]
     fn cpu_initialization() {
-        let cpu = CPU::new();
+        let mut cpu = CPU::new();
+		cpu.initialize();
         assert_eq!(cpu.ip, 0);
+        assert_eq!(cpu.read_register(RT), 0);
     }
 
     #[test]
@@ -199,5 +201,44 @@ mod tests {
         cpu.cycle(&mut mem);
         
         assert_eq!(cpu.registers[0], 0);
+    }
+    #[test]
+    fn halting() {
+        let mut builder = ProgramBuilder::new();
+        builder.instruction(Instruction::Halt);
+        
+        let mut mem = Memory::new();
+        builder.build(&mut mem);
+        
+        let mut cpu = CPU::new();
+        assert!(!cpu.cycle(&mut mem));
+    }
+    #[test]
+    fn no_operation() {
+        let mut builder = ProgramBuilder::new();
+        builder.instruction(Instruction::Nop);
+        
+        let mut mem = Memory::new();
+        builder.build(&mut mem);
+        
+        let mut cpu = CPU::new();
+        assert!(cpu.cycle(&mut mem));
+    }
+    #[test]
+    fn cycle_counting() {
+        let mut builder = ProgramBuilder::new();
+        builder.instruction(Instruction::Nop);
+        builder.instruction(Instruction::Nop);
+        builder.instruction(Instruction::Nop);
+        
+        let mut mem = Memory::new();
+        builder.build(&mut mem);
+        
+        let mut cpu = CPU::new();
+		cpu.cycle(&mut mem);
+		cpu.cycle(&mut mem);
+		cpu.cycle(&mut mem);
+        
+        assert_eq!(cpu.registers[RT], 3);
     }
 }

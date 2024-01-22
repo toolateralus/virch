@@ -78,12 +78,17 @@ impl CPU {
                         self.consume::<u8>();
                         self.registers[RAX] = (self.registers[RAX] == self.registers[RDI]) as i32;
                     },
+                    Instruction::Nop => {
+                        self.consume::<u8>();
+                    },
                 }
             }
             Err(_) => {
                 panic!("unexpected data in program : {:#?} at {}", memory.read_i32(self.ip), self.ip);
             }
         }
+		let cycles = self.read_register(RT) + 1;
+		self.write_register(RT, cycles);
         return true;
     }
 
@@ -93,15 +98,24 @@ impl CPU {
         }
         self.registers[register] = value;
     }
-
+	pub fn read_register(&mut self, register: usize) -> i32 {
+        if register > self.registers.len() {
+            panic!("register write out of bounds.. : register {} does not exist.", register);
+        }
+        self.registers[register]
+    }
+    
     pub fn run(&mut self, memory: &mut Memory) {
-        let mut cycles = 0;
+		self.initialize();
         loop {
-            self.write_register(RT, cycles);
             if !self.cycle(memory) {
                 break;
             }
-            cycles += 1;
         }
+    }
+    
+    pub fn initialize(&mut self) {
+        self.ip = 0;
+        self.write_register(RT, 0);
     }
 }
