@@ -1,5 +1,16 @@
 use crate::{opcodes::Instruction, memory::Memory};
 pub const NUM_REGISTERS : usize = 8;
+
+pub const RAX : usize = 0;
+pub const RDI : usize = 1;
+pub const RSI : usize = 2;
+pub const RDX : usize = 3;
+pub const RCX : usize = 4;
+pub const R8 : usize = 5;
+pub const R9 : usize = 6;
+pub const R10 : usize = 7;
+
+
 pub struct CPU {
     pub ip: usize,
     pub registers: [i32; NUM_REGISTERS],
@@ -7,8 +18,8 @@ pub struct CPU {
 impl CPU {
     pub fn new() -> Self {
         CPU {
-            ip:0, // we ignore the first 4 bytes : it's the exit/error code. 
-            registers:[0; NUM_REGISTERS]
+            ip:0,
+            registers:[0; NUM_REGISTERS],
         }
     }
     pub fn consume<T>(&mut self) {
@@ -42,24 +53,24 @@ impl CPU {
                     },
                     Instruction::Add => {
                         self.consume::<u8>();
-                        self.registers[0] = self.registers[0] + self.registers[1];
+                        self.registers[RAX] = self.registers[RAX] + self.registers[RDI];
                     },
                     Instruction::Sub => {
                         self.consume::<u8>();
-                        self.registers[0] = self.registers[0] - self.registers[1];
+                        self.registers[RAX] = self.registers[RAX] - self.registers[RDI];
                     },
                     Instruction::Mul => {
                         self.consume::<u8>();
-                        self.registers[0] = self.registers[0] * self.registers[1];
+                        self.registers[RAX] = self.registers[RAX] * self.registers[RDI];
                     },
                     Instruction::Div => {
                         self.consume::<u8>();
-                        self.registers[2] = self.registers[0] % self.registers[1];
-                        self.registers[0] = self.registers[0] / self.registers[1];
+                        self.registers[RSI] = self.registers[RAX] % self.registers[RDI];
+                        self.registers[RAX] = self.registers[RAX] / self.registers[RDI];
                     },
                     Instruction::Cmpi => {
                         self.consume::<u8>();
-                        self.registers[0] = (self.registers[0] == self.registers[1]) as i32;
+                        self.registers[RAX] = (self.registers[RAX] == self.registers[RDI]) as i32;
                     },
                 }
             }
