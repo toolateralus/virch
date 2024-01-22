@@ -25,6 +25,26 @@
         {
             "type": "lldb",
             "request": "launch",
+            "name": "Debug xaryuscript 'xartest.o'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=virch",
+                    "--package=virch"
+                ],
+                "filter": {
+                    "name": "virch",
+                    "kind": "bin"
+                }
+            },
+            "args": [
+				"xartest.o"
+			],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
             "name": "Debug unit tests in executable 'virch'",
             "cargo": {
                 "args": [

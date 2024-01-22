@@ -1,4 +1,8 @@
 use crate::{opcodes::Instruction, memory::Memory, register::*};
+
+#[cfg(test)]
+mod test;
+
 pub const NUM_REGISTERS : usize = 13;
 
 pub struct CPU {
