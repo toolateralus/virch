@@ -1,5 +1,5 @@
 use crate::{opcodes::Instruction, memory::Memory, register::*};
-pub const NUM_REGISTERS : usize = 9;
+pub const NUM_REGISTERS : usize = 13;
 
 pub struct CPU {
     pub ip: usize,
