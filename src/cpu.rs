@@ -34,7 +34,7 @@ impl CPU {
             Ok(instruction) => {
                 match instruction {
                     Instruction::Halt => { return false; },
-                    Instruction::Jump => { self.ip = memory.read_u8(self.ip + 1) as usize; },
+                    Instruction::Jump => { self.ip = memory.read_i32(self.ip + 1) as usize; },
                     Instruction::Store => {
                         self.consume::<u8>();
                         let register = memory.read_i32(self.ip) as usize;

@@ -163,4 +163,18 @@ mod tests {
         
         assert_eq!(mem.read_i32(100), 432);
     }
+    #[test]
+    fn jumping() {
+        let mut builder = ProgramBuilder::new();
+        builder.instruction(Instruction::Jump);
+		builder.i32(100);
+        
+        let mut mem = Memory::new();
+        builder.build(&mut mem);
+        
+        let mut cpu = CPU::new();
+        cpu.cycle(&mut mem);
+        
+        assert_eq!(cpu.ip, 100);
+    }
 }
