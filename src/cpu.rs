@@ -54,8 +54,8 @@ impl CPU {
                     },
                     Instruction::Div => {
                         self.consume::<u8>();
-                        self.registers[0] = self.registers[0] / self.registers[1];
                         self.registers[2] = self.registers[0] % self.registers[1];
+                        self.registers[0] = self.registers[0] / self.registers[1];
                     },
                     Instruction::Cmpi => {
                         self.consume::<u8>();
