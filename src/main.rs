@@ -1,4 +1,4 @@
-use crate::{opcodes::Instruction, cpu::{CPU, ProgramBuilder}};
+use crate::{opcodes::Instruction, cpu::{CPU, ProgramBuilder, MEM_SIZE}};
 
 mod opcodes;
 mod cpu;
@@ -9,7 +9,7 @@ fn main() {
         registers:[0; 32]
     };
 
-    let mut memory = [0; 4096];
+    let mut memory = [0; MEM_SIZE];
 
     let mut builder = ProgramBuilder::new();
 

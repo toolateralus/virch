@@ -5,6 +5,8 @@ pub struct ProgramBuilder {
     program: Program,
 }
 
+pub const MEM_SIZE : usize = 4096;
+
 #[allow(dead_code)]
 impl ProgramBuilder {
     pub fn new() -> Self {
@@ -12,7 +14,7 @@ impl ProgramBuilder {
             program: Vec::new(),
         }
     }
-    pub fn build(self, memory : &mut [u8; 4096]) {
+    pub fn build(self, memory : &mut [u8; MEM_SIZE]) {
         for (i, v) in self.program.iter().enumerate() {
             memory[i] = *v as u8;
         }
@@ -44,7 +46,7 @@ pub struct CPU {
 }
 
 impl CPU {
-    pub fn cycle(&mut self, memory: &mut [u8; 4096]) -> bool {
+    pub fn cycle(&mut self, memory: &mut [u8; MEM_SIZE]) -> bool {
         let ins = Instruction::from(memory[self.ip]);
     
         match ins {
@@ -66,7 +68,7 @@ impl CPU {
                         self.ip += 4;
                         let address = self.read_word(memory, self.ip);
                         self.ip += 4;
-                        self.write_register(register, memory, address as i32);
+                        self.write_register(register, address as i32);
                     },
                     Instruction::Add => {
                         self.registers[0] = self.registers[0] + self.registers[1];
@@ -98,29 +100,25 @@ impl CPU {
         return true;
     }
 
-    pub fn write_register(&mut self, register: usize, memory: &mut [u8; 4096], value: i32) {
+    pub fn write_register(&mut self, register: usize, value: i32) {
         if register > self.registers.len() {
             panic!("register write out of bounds.. : register {} does not exist.", register);
         }
-
         self.registers[register] = value;
     }
 
-    pub fn write_word(&mut self, memory: &mut [u8; 4096], address: usize, register: usize) {
+    pub fn write_word(&mut self, memory: &mut [u8; MEM_SIZE], address: usize, register: usize) {
         if address > memory.len() || address + 4 > memory.len() {
             panic!("memory write out of bounds : {}", address);
         }
-
         let value = self.registers[register];
-
         Self::write_word_direct(value, memory, address);
     }
 
-    pub fn read_word(&self, memory: &mut [u8; 4096], address: usize) -> usize {
+    pub fn read_word(&self, memory: &mut [u8; MEM_SIZE], address: usize) -> usize {
         if address > memory.len() || address + 4 > memory.len() {
             panic!("memory read out of bounds : {}", address);
         }
-
         let bytes = &memory[address..address+4];
         let value = u32::from_le_bytes([
             bytes[0], bytes[1], bytes[2], bytes[3]
@@ -128,7 +126,7 @@ impl CPU {
         value as usize
     }
     
-    pub fn write_word_direct(value: i32, memory: &mut [u8; 4096], address: usize) {
+    pub fn write_word_direct(value: i32, memory: &mut [u8; MEM_SIZE], address: usize) {
         let bytes = value.to_le_bytes();
         memory[address..address+4].copy_from_slice(&bytes);
     }
