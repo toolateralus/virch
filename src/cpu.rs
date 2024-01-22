@@ -1,21 +1,19 @@
 use crate::{opcodes::Instruction, memory::Memory};
 pub const NUM_REGISTERS : usize = 9;
 
-#[allow(dead_code)] 
-pub const RAX : usize = 0;
-pub const RDI : usize = 1;
-pub const RSI : usize = 2;
-#[allow(dead_code)] 
-pub const RDX : usize = 3;
-#[allow(dead_code)] 
-pub const RCX : usize = 4;
-#[allow(dead_code)] 
-pub const R8 : usize = 5;
-#[allow(dead_code)] 
-pub const R9 : usize = 6;
-#[allow(dead_code)] 
-pub const R10 : usize = 7;
-pub const RT : usize = 8;
+pub const A : usize = 0;
+pub const B : usize = 1;
+pub const C : usize = 2;
+pub const D : usize = 3;
+pub const E : usize = 4;
+pub const F : usize = 5;
+pub const G : usize = 6;
+pub const SP : usize = 7;
+pub const IP : usize = 8;
+pub const R8 : usize = 9;
+pub const R9 : usize = 10;
+pub const R10 : usize = 11;
+pub const RT : usize = 12;
 
 pub struct CPU {
     pub ip: usize,
@@ -31,6 +29,8 @@ impl CPU {
     pub fn consume<T>(&mut self) {
         let size = std::mem::size_of::<T>();
         self.ip += size;
+        self.write_register(IP, self.ip as i32);
+        
     }
     pub fn cycle(&mut self, memory: &mut Memory) -> bool {
         let ins = memory.read_u8(self.ip);
@@ -59,24 +59,24 @@ impl CPU {
                     },
                     Instruction::Add => {
                         self.consume::<u8>();
-                        self.registers[RAX] = self.registers[RAX] + self.registers[RDI];
+                        self.registers[A] = self.registers[A] + self.registers[B];
                     },
                     Instruction::Sub => {
                         self.consume::<u8>();
-                        self.registers[RAX] = self.registers[RAX] - self.registers[RDI];
+                        self.registers[A] = self.registers[A] - self.registers[B];
                     },
                     Instruction::Mul => {
                         self.consume::<u8>();
-                        self.registers[RAX] = self.registers[RAX] * self.registers[RDI];
+                        self.registers[A] = self.registers[A] * self.registers[B];
                     },
                     Instruction::Div => {
                         self.consume::<u8>();
-                        self.registers[RSI] = self.registers[RAX] % self.registers[RDI];
-                        self.registers[RAX] = self.registers[RAX] / self.registers[RDI];
+                        self.registers[C] = self.registers[A] % self.registers[B];
+                        self.registers[A] = self.registers[A] / self.registers[B];
                     },
                     Instruction::Cmpi => {
                         self.consume::<u8>();
-                        self.registers[RAX] = (self.registers[RAX] == self.registers[RDI]) as i32;
+                        self.registers[A] = (self.registers[A] == self.registers[B]) as i32;
                     },
                 }
             }
