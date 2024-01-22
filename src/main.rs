@@ -61,7 +61,7 @@ mod tests {
         builder.u32(0);
         builder.u32(250);
         builder.instruction(Instruction::Mul);
-
+        
         builder.instruction(Instruction::Store);
         builder.u32(0);
         builder.u32(100);
@@ -72,8 +72,9 @@ mod tests {
         let mut mem = Memory::new();
 
         builder.build(&mut mem);
-
         
-
+        cpu.run(&mut mem);
+        assert_eq!(mem.read_i32(100), 62500);
+    
     }
 }
