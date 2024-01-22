@@ -54,7 +54,6 @@ mod tests {
     fn multiplication() {
         let mut builder = ProgramBuilder::new();
         builder.instruction(Instruction::Mul);
-        builder.instruction(Instruction::Halt);
         
         let mut mem = Memory::new();
         builder.build(&mut mem);
@@ -62,7 +61,7 @@ mod tests {
         let mut cpu = CPU::new();
 		cpu.write_register(0, 250);
 		cpu.write_register(1, 300);
-        cpu.run(&mut mem);
+        cpu.cycle(&mut mem);
         
         assert_eq!(cpu.registers[0], 75000);
     }
@@ -70,7 +69,6 @@ mod tests {
     fn division() {
         let mut builder = ProgramBuilder::new();
         builder.instruction(Instruction::Div);
-        builder.instruction(Instruction::Halt);
         
         let mut mem = Memory::new();
         builder.build(&mut mem);
@@ -78,7 +76,7 @@ mod tests {
         let mut cpu = CPU::new();
 		cpu.write_register(0, 500);
 		cpu.write_register(1, 2);
-        cpu.run(&mut mem);
+        cpu.cycle(&mut mem);
         
         assert_eq!(cpu.registers[0], 250);
     }
@@ -86,15 +84,14 @@ mod tests {
     fn modulus() {
         let mut builder = ProgramBuilder::new();
         builder.instruction(Instruction::Div);
-        builder.instruction(Instruction::Halt);
-        
+
         let mut mem = Memory::new();
         builder.build(&mut mem);
         
         let mut cpu = CPU::new();
 		cpu.write_register(0, 5);
 		cpu.write_register(1, 3);
-        cpu.run(&mut mem);
+        cpu.cycle(&mut mem);
         
         assert_eq!(cpu.registers[2], 2);
     }
@@ -102,7 +99,6 @@ mod tests {
     fn addition() {
         let mut builder = ProgramBuilder::new();
         builder.instruction(Instruction::Add);
-        builder.instruction(Instruction::Halt);
         
         let mut mem = Memory::new();
         builder.build(&mut mem);
@@ -110,7 +106,7 @@ mod tests {
         let mut cpu = CPU::new();
 		cpu.write_register(0, 123);
 		cpu.write_register(1, 1);
-        cpu.run(&mut mem);
+        cpu.cycle(&mut mem);
         
         assert_eq!(cpu.registers[0], 124);
     }
@@ -118,7 +114,6 @@ mod tests {
     fn subtraction() {
         let mut builder = ProgramBuilder::new();
         builder.instruction(Instruction::Sub);
-        builder.instruction(Instruction::Halt);
         
         let mut mem = Memory::new();
         builder.build(&mut mem);
@@ -126,7 +121,7 @@ mod tests {
         let mut cpu = CPU::new();
 		cpu.write_register(0, 432);
 		cpu.write_register(1, 1);
-        cpu.run(&mut mem);
+        cpu.cycle(&mut mem);
         
         assert_eq!(cpu.registers[0], 431);
     }
@@ -136,13 +131,12 @@ mod tests {
         builder.instruction(Instruction::Load);
 		builder.u32(0);
 		builder.i32(123);
-        builder.instruction(Instruction::Halt);
         
         let mut mem = Memory::new();
         builder.build(&mut mem);
         
         let mut cpu = CPU::new();
-        cpu.run(&mut mem);
+        cpu.cycle(&mut mem);
         
         assert_eq!(cpu.registers[0], 123);
     }
@@ -152,14 +146,13 @@ mod tests {
         builder.instruction(Instruction::Store);
 		builder.u32(0);
 		builder.i32(100);
-        builder.instruction(Instruction::Halt);
         
         let mut mem = Memory::new();
         builder.build(&mut mem);
         
         let mut cpu = CPU::new();
 		cpu.write_register(0, 432);
-        cpu.run(&mut mem);
+        cpu.cycle(&mut mem);
         
         assert_eq!(mem.read_i32(100), 432);
     }
@@ -176,5 +169,35 @@ mod tests {
         cpu.cycle(&mut mem);
         
         assert_eq!(cpu.ip, 100);
+    }
+    #[test]
+    fn compare_equal() {
+        let mut builder = ProgramBuilder::new();
+        builder.instruction(Instruction::Cmpi);
+        
+        let mut mem = Memory::new();
+        builder.build(&mut mem);
+        
+        let mut cpu = CPU::new();
+		cpu.write_register(0, 123);
+		cpu.write_register(1, 123);
+        cpu.cycle(&mut mem);
+        
+        assert_eq!(cpu.registers[0], 1);
+    }
+    #[test]
+    fn compare_not_equal() {
+        let mut builder = ProgramBuilder::new();
+        builder.instruction(Instruction::Cmpi);
+        
+        let mut mem = Memory::new();
+        builder.build(&mut mem);
+        
+        let mut cpu = CPU::new();
+		cpu.write_register(0, 123);
+		cpu.write_register(1, 321);
+        cpu.cycle(&mut mem);
+        
+        assert_eq!(cpu.registers[0], 0);
     }
 }
