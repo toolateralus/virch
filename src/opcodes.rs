@@ -13,6 +13,7 @@ pub enum Instruction {
     Mul,
     Div,
     Cmpi, // compare integer.
+	Nop,
 }
 
 impl Instruction {
@@ -27,6 +28,7 @@ impl Instruction {
             6 => Ok(Instruction::Mul),
             7 => Ok(Instruction::Div),
             8 => Ok(Instruction::Cmpi),
+            9 => Ok(Instruction::Nop),
             _ => Err(()),
         }
     }
