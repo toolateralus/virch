@@ -1,15 +1,21 @@
 use crate::{opcodes::Instruction, memory::Memory};
-pub const NUM_REGISTERS : usize = 8;
+pub const NUM_REGISTERS : usize = 9;
 
+#[allow(dead_code)] 
 pub const RAX : usize = 0;
 pub const RDI : usize = 1;
 pub const RSI : usize = 2;
+#[allow(dead_code)] 
 pub const RDX : usize = 3;
+#[allow(dead_code)] 
 pub const RCX : usize = 4;
+#[allow(dead_code)] 
 pub const R8 : usize = 5;
+#[allow(dead_code)] 
 pub const R9 : usize = 6;
+#[allow(dead_code)] 
 pub const R10 : usize = 7;
-
+pub const RT : usize = 8;
 
 pub struct CPU {
     pub ip: usize,
@@ -89,10 +95,13 @@ impl CPU {
     }
 
     pub fn run(&mut self, memory: &mut Memory) {
+        let mut cycles = 0;
         loop {
+            self.write_register(RT, cycles);
             if !self.cycle(memory) {
                 break;
             }
+            cycles += 1;
         }
     }
 }
