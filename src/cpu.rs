@@ -1,75 +1,9 @@
-use crate::opcodes::Instruction;
-
-pub type Program = Vec<u8>;
-pub struct ProgramBuilder {
-    program: Program,
-}
-pub const MEM_SIZE : usize = 4096;
+use crate::{opcodes::Instruction, memory::Memory};
 pub const NUM_REGISTERS : usize = 8;
-
-pub struct Memory {
-    pub memory: [u8; MEM_SIZE],
-}
-
-impl Memory {
-    pub fn new() -> Self {
-        Self {
-            memory: [0; MEM_SIZE],
-        }
-    }
-    pub fn write_i32(&mut self, addr: usize, value: i32) {
-        let bytes = value.to_le_bytes();
-        self.memory[addr..addr+4].copy_from_slice(&bytes);
-    }
-    pub fn write_u8(&mut self, addr: usize, value: u8) {
-        self.memory[addr] = value;
-    }
-    pub fn read_i32(&mut self, addr: usize) -> i32 {
-        let bytes = &self.memory[addr..addr+4];
-        i32::from_le_bytes([bytes[0],bytes[1],bytes[2],bytes[3]])
-    }
-    pub fn read_u8(&mut self, addr: usize) -> u8 {
-        self.memory[addr]
-    }
-}
-
-impl ProgramBuilder {
-    pub fn new() -> Self {
-        Self {
-            program: Vec::new(),
-        }
-    }
-    pub fn build(self, memory : &mut Memory) {
-        for (i, v) in self.program.iter().enumerate() {
-            memory.write_u8(i, *v as u8);
-        }
-    }
-    pub fn instruction(&mut self, ins : Instruction) {
-        let ins = ins as u8;
-        self.program.push(ins);
-    }
-    pub fn u8(&mut self, byte : u8) {
-        self.program.push(byte);
-    }
-    pub fn u32(&mut self, int : u32) {
-        let bytes = u32::to_le_bytes(int);
-        for byte in bytes.iter() {
-            self.program.push(*byte);
-        }
-    }
-    pub fn i32(&mut self, int : i32) {
-        let bytes = i32::to_le_bytes(int);
-        for byte in bytes.iter() {
-            self.program.push(*byte);
-        }
-    }
-}
-
 pub struct CPU {
     pub ip: usize,
     pub registers: [i32; NUM_REGISTERS],
 }
-
 impl CPU {
     pub fn new() -> Self {
         CPU {
@@ -129,8 +63,7 @@ impl CPU {
                 }
             }
             Err(_) => {
-                // this is data.
-                panic!("{:#?}", memory.read_i32(self.ip));
+                panic!("unexpected data in program : {:#?} at {}", memory.read_i32(self.ip), self.ip);
             }
         }
         return true;

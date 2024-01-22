@@ -1,9 +1,10 @@
-use cpu::Memory;
+use memory::Memory;
 
-use crate::{opcodes::Instruction, cpu::{CPU, ProgramBuilder, MEM_SIZE}};
+use crate::cpu::CPU;
 
 mod opcodes;
 mod cpu;
+mod memory;
 
 fn main() {
     let cpu = CPU::new();
@@ -12,6 +13,8 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
+
+    use crate::{opcodes::{Instruction, ProgramBuilder}, memory::Memory};
 
     use super::*;
     
