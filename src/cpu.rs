@@ -1,5 +1,5 @@
 use crate::{opcodes::Instruction, memory::Memory};
-pub const NUM_REGISTERS : usize = 9;
+pub const NUM_REGISTERS : usize = 13;
 
 pub const A : usize = 0;
 pub const B : usize = 1;
