@@ -6,16 +6,25 @@ mod opcodes;
 mod cpu;
 mod memory;
 
+use std::env;
+use std::fs::File;
+use std::io::Read;
+
 fn main() {
-    let cpu = CPU::new();
-    let memory = Memory::new();
+    let args: Vec<String> = env::args().collect();
+    if args.len() < 2 {
+        panic!("Please provide a file path as a command line argument.");
+    }
+    let file_path = &args[1];
+    let mut memory = Memory::from_bytes(file_path);
+    let mut cpu = CPU::new();
+    cpu.run(&mut memory);
+    println!("Program exited with code: {}", cpu.registers[0]);
 }
 
 #[cfg(test)]
 mod tests {
-
     use crate::{opcodes::{Instruction, ProgramBuilder}, memory::Memory};
-
     use super::*;
     
     #[test]

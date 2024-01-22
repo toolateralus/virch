@@ -75,4 +75,12 @@ impl CPU {
         }
         self.registers[register] = value;
     }
+
+    pub fn run(&mut self, memory: &mut Memory) {
+        loop {
+            if !self.cycle(memory) {
+                break;
+            }
+        }
+    }
 }
