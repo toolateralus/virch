@@ -4,19 +4,44 @@ pub type Program = Vec<u8>;
 pub struct ProgramBuilder {
     program: Program,
 }
-
 pub const MEM_SIZE : usize = 4096;
+pub const NUM_REGISTERS : usize = 8;
 
-#[allow(dead_code)]
+pub struct Memory {
+    pub memory: [u8; MEM_SIZE],
+}
+
+impl Memory {
+    pub fn new() -> Self {
+        Self {
+            memory: [0; MEM_SIZE],
+        }
+    }
+    pub fn write_i32(&mut self, addr: usize, value: i32) {
+        let bytes = value.to_le_bytes();
+        self.memory[addr..addr+4].copy_from_slice(&bytes);
+    }
+    pub fn write_u8(&mut self, addr: usize, value: u8) {
+        self.memory[addr] = value;
+    }
+    pub fn read_i32(&mut self, addr: usize) -> i32 {
+        let bytes = &self.memory[addr..addr+4];
+        i32::from_le_bytes([bytes[0],bytes[1],bytes[2],bytes[3]])
+    }
+    pub fn read_u8(&mut self, addr: usize) -> u8 {
+        self.memory[addr]
+    }
+}
+
 impl ProgramBuilder {
     pub fn new() -> Self {
         Self {
             program: Vec::new(),
         }
     }
-    pub fn build(self, memory : &mut [u8; MEM_SIZE]) {
+    pub fn build(self, memory : &mut Memory) {
         for (i, v) in self.program.iter().enumerate() {
-            memory[i] = *v as u8;
+            memory.write_u8(i, *v as u8);
         }
     }
     pub fn instruction(&mut self, ins : Instruction) {
@@ -42,59 +67,70 @@ impl ProgramBuilder {
 
 pub struct CPU {
     pub ip: usize,
-    pub registers: [i32; 32],
+    pub registers: [i32; NUM_REGISTERS],
 }
 
 impl CPU {
-    pub fn cycle(&mut self, memory: &mut [u8; MEM_SIZE]) -> bool {
-        let ins = Instruction::from(memory[self.ip]);
+    pub fn new() -> Self {
+        CPU {
+            ip:0, // we ignore the first 4 bytes : it's the exit/error code. 
+            registers:[0; NUM_REGISTERS]
+        }
+    }
+    pub fn consume<T>(&mut self) {
+        let size = std::mem::size_of::<T>();
+        self.ip += size;
+    }
+    pub fn cycle(&mut self, memory: &mut Memory) -> bool {
+        let ins = memory.read_u8(self.ip);
+        let ins = Instruction::from(ins);
     
         match ins {
             Ok(instruction) => {
                 match instruction {
                     Instruction::Halt => { return false; },
-                    Instruction::Jump => { self.ip = memory[self.ip + 1] as usize; },
+                    Instruction::Jump => { self.ip = memory.read_u8(self.ip + 1) as usize; },
                     Instruction::Store => {
-                        self.ip += 1;
-                        let register = self.read_word(memory, self.ip);
-                        self.ip += 4;
-                        let address = self.read_word(memory, self.ip);
-                        self.ip += 4;
-                        self.write_word(memory, address, register);
+                        self.consume::<u8>();
+                        let register = memory.read_i32(self.ip) as usize;
+                        self.consume::<i32>();
+                        let address = memory.read_i32(self.ip) as i32;
+                        self.consume::<i32>();
+                        memory.write_i32(register, address);
                     },
                     Instruction::Load => {
-                        self.ip += 1;
-                        let register = self.read_word(memory, self.ip);
-                        self.ip += 4;
-                        let address = self.read_word(memory, self.ip);
-                        self.ip += 4;
-                        self.write_register(register, address as i32);
+                        self.consume::<u8>();
+                        let register = memory.read_i32(self.ip) as usize;
+                        self.consume::<i32>();
+                        let address = memory.read_i32(self.ip) as i32;
+                        self.consume::<i32>();
+                        self.write_register(register, address);
                     },
                     Instruction::Add => {
                         self.registers[0] = self.registers[0] + self.registers[1];
-                        self.ip += 1;
+                        self.consume::<u8>();
                     },
                     Instruction::Sub => {
                         self.registers[0] = self.registers[0] - self.registers[1];
-                        self.ip += 1;
+                        self.consume::<u8>();
                     },
                     Instruction::Mul => {
                         self.registers[0] = self.registers[0] * self.registers[1];
-                        self.ip += 1;
+                        self.consume::<u8>();
                     },
                     Instruction::Div => {
                         self.registers[0] = self.registers[0] / self.registers[1];
-                        self.ip += 1;
+                        self.consume::<u8>();
                     },
                     Instruction::Cmpi => {
                         self.registers[0] = (self.registers[0] == self.registers[1]) as i32;
-                        self.ip += 1;
+                        self.consume::<u8>();
                     },
                 }
             }
             Err(_) => {
                 // this is data.
-                panic!("{:#?}", memory[self.ip]);
+                panic!("{:#?}", memory.read_i32(self.ip));
             }
         }
         return true;
@@ -105,29 +141,5 @@ impl CPU {
             panic!("register write out of bounds.. : register {} does not exist.", register);
         }
         self.registers[register] = value;
-    }
-
-    pub fn write_word(&mut self, memory: &mut [u8; MEM_SIZE], address: usize, register: usize) {
-        if address > memory.len() || address + 4 > memory.len() {
-            panic!("memory write out of bounds : {}", address);
-        }
-        let value = self.registers[register];
-        Self::write_word_direct(value, memory, address);
-    }
-
-    pub fn read_word(&self, memory: &mut [u8; MEM_SIZE], address: usize) -> usize {
-        if address > memory.len() || address + 4 > memory.len() {
-            panic!("memory read out of bounds : {}", address);
-        }
-        let bytes = &memory[address..address+4];
-        let value = u32::from_le_bytes([
-            bytes[0], bytes[1], bytes[2], bytes[3]
-        ]);
-        value as usize
-    }
-    
-    pub fn write_word_direct(value: i32, memory: &mut [u8; MEM_SIZE], address: usize) {
-        let bytes = value.to_le_bytes();
-        memory[address..address+4].copy_from_slice(&bytes);
     }
 }
