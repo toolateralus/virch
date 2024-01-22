@@ -24,7 +24,7 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
-    use crate::{cpu::RT, memory::Memory, opcodes::{Instruction, ProgramBuilder}};
+    use crate::{cpu::{RAX, RDI, RSI, RT}, memory::Memory, opcodes::{Instruction, ProgramBuilder}};
     use super::*;
     
     #[test]
@@ -61,11 +61,11 @@ mod tests {
         builder.build(&mut mem);
         
         let mut cpu = CPU::new();
-		cpu.write_register(0, 250);
-		cpu.write_register(1, 300);
+		cpu.write_register(RAX, 250);
+		cpu.write_register(RDI, 300);
         cpu.cycle(&mut mem);
         
-        assert_eq!(cpu.registers[0], 75000);
+        assert_eq!(cpu.read_register(RAX), 75000);
     }
     #[test]
     fn division() {
@@ -76,11 +76,11 @@ mod tests {
         builder.build(&mut mem);
         
         let mut cpu = CPU::new();
-		cpu.write_register(0, 500);
-		cpu.write_register(1, 2);
+		cpu.write_register(RAX, 500);
+		cpu.write_register(RDI, 2);
         cpu.cycle(&mut mem);
         
-        assert_eq!(cpu.registers[0], 250);
+        assert_eq!(cpu.read_register(RAX), 250);
     }
     #[test]
     fn modulus() {
@@ -91,11 +91,11 @@ mod tests {
         builder.build(&mut mem);
         
         let mut cpu = CPU::new();
-		cpu.write_register(0, 5);
-		cpu.write_register(1, 3);
+		cpu.write_register(RAX, 5);
+		cpu.write_register(RDI, 3);
         cpu.cycle(&mut mem);
         
-        assert_eq!(cpu.registers[2], 2);
+        assert_eq!(cpu.read_register(RSI), 2);
     }
     #[test]
     fn addition() {
@@ -106,11 +106,11 @@ mod tests {
         builder.build(&mut mem);
         
         let mut cpu = CPU::new();
-		cpu.write_register(0, 123);
-		cpu.write_register(1, 1);
+		cpu.write_register(RAX, 123);
+		cpu.write_register(RDI, 1);
         cpu.cycle(&mut mem);
         
-        assert_eq!(cpu.registers[0], 124);
+        assert_eq!(cpu.read_register(RAX), 124);
     }
     #[test]
     fn subtraction() {
@@ -121,11 +121,11 @@ mod tests {
         builder.build(&mut mem);
         
         let mut cpu = CPU::new();
-		cpu.write_register(0, 432);
-		cpu.write_register(1, 1);
+		cpu.write_register(RAX, 432);
+		cpu.write_register(RDI, 1);
         cpu.cycle(&mut mem);
         
-        assert_eq!(cpu.registers[0], 431);
+        assert_eq!(cpu.read_register(RAX), 431);
     }
     #[test]
     fn loading() {
@@ -140,7 +140,7 @@ mod tests {
         let mut cpu = CPU::new();
         cpu.cycle(&mut mem);
         
-        assert_eq!(cpu.registers[0], 123);
+        assert_eq!(cpu.read_register(RAX), 123);
     }
     #[test]
     fn storing() {
@@ -153,7 +153,7 @@ mod tests {
         builder.build(&mut mem);
         
         let mut cpu = CPU::new();
-		cpu.write_register(0, 432);
+		cpu.write_register(RAX, 432);
         cpu.cycle(&mut mem);
         
         assert_eq!(mem.read_i32(100), 432);
@@ -181,11 +181,11 @@ mod tests {
         builder.build(&mut mem);
         
         let mut cpu = CPU::new();
-		cpu.write_register(0, 123);
-		cpu.write_register(1, 123);
+		cpu.write_register(RAX, 123);
+		cpu.write_register(RDI, 123);
         cpu.cycle(&mut mem);
         
-        assert_eq!(cpu.registers[0], 1);
+        assert_eq!(cpu.read_register(RAX), 1);
     }
     #[test]
     fn compare_not_equal() {
@@ -196,11 +196,11 @@ mod tests {
         builder.build(&mut mem);
         
         let mut cpu = CPU::new();
-		cpu.write_register(0, 123);
-		cpu.write_register(1, 321);
+		cpu.write_register(RAX, 123);
+		cpu.write_register(RDI, 321);
         cpu.cycle(&mut mem);
         
-        assert_eq!(cpu.registers[0], 0);
+        assert_eq!(cpu.read_register(RAX), 0);
     }
     #[test]
     fn halting() {
@@ -239,6 +239,6 @@ mod tests {
 		cpu.cycle(&mut mem);
 		cpu.cycle(&mut mem);
         
-        assert_eq!(cpu.registers[RT], 3);
+        assert_eq!(cpu.read_register(RT), 3);
     }
 }
