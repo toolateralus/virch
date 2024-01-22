@@ -1,0 +1,4 @@
+lod a, 250
+lod b, 250
+mul
+str a, 600 
