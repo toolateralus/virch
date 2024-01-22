@@ -1,4 +1,4 @@
-use crate::{opcodes::Instruction, cpu::{CPU, Program, ProgramBuilder}};
+use crate::{opcodes::Instruction, cpu::{CPU, ProgramBuilder}};
 
 mod opcodes;
 mod cpu;
@@ -44,5 +44,5 @@ fn main() {
 
     println!("
 program ran for : {} cycles.
-255-255+4: {:?}", cycles, slice);
+255-255+4: {}", cycles, u32::from_le_bytes([slice[0], slice[1], slice[2], slice[3]]));
 }

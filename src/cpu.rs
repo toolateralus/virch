@@ -1,4 +1,4 @@
-use crate::{opcodes::Instruction};
+use crate::opcodes::Instruction;
 
 pub type Program = Vec<u8>;
 pub struct ProgramBuilder {
@@ -66,7 +66,7 @@ impl CPU {
                         self.ip += 4;
                         let address = self.read_word(memory, self.ip);
                         self.ip += 4;
-                        self.write_register(register, memory, address);
+                        self.write_register(register, memory, address as i32);
                     },
                     Instruction::Add => {
                         self.registers[0] = self.registers[0] + self.registers[1];
@@ -98,12 +98,12 @@ impl CPU {
         return true;
     }
 
-    pub fn write_register(&mut self, register: usize, memory: &mut [u8; 4096], address: usize) {
+    pub fn write_register(&mut self, register: usize, memory: &mut [u8; 4096], value: i32) {
         if register > self.registers.len() {
             panic!("register write out of bounds.. : register {} does not exist.", register);
         }
 
-        self.registers[register] = self.read_word(memory, address) as i32;
+        self.registers[register] = value;
     }
 
     pub fn write_word(&mut self, memory: &mut [u8; 4096], address: usize, register: usize) {
