@@ -13,21 +13,21 @@ fn main() {
 
     let mut builder = ProgramBuilder::new();
 
-    builder.instruction(Instruction::Load);
-    builder.u32(0);
-    builder.u32(255);
+    builder.instruction(Instruction::Load); // 1
+    builder.u32(0); // 5
+    builder.u32(255); // 9
 
-    builder.instruction(Instruction::Load);
-    builder.u32(1);
-    builder.u32(255);
+    builder.instruction(Instruction::Load); // 10
+    builder.u32(1); // 14
+    builder.u32(255); // 18
 
-    builder.instruction(Instruction::Mul);
+    builder.instruction(Instruction::Mul); // 19
 
-    builder.instruction(Instruction::Store);
-    builder.u32(0);
-    builder.u32(255);
+    builder.instruction(Instruction::Store); // 20
+    builder.u32(0); // 24
+    builder.u32(255); // 28
 
-    builder.instruction(Instruction::Halt);
+    builder.instruction(Instruction::Halt); // 29
 
     builder.build(&mut memory);
 

@@ -5,6 +5,7 @@ pub struct ProgramBuilder {
     program: Program,
 }
 
+#[allow(dead_code)]
 impl ProgramBuilder {
     pub fn new() -> Self {
         Self {
@@ -67,11 +68,26 @@ impl CPU {
                         self.ip += 4;
                         self.write_register(register, memory, address);
                     },
-                    Instruction::Add => self.registers[0] = self.registers[0] + self.registers[1],
-                    Instruction::Sub => self.registers[0] = self.registers[0] + self.registers[1],
-                    Instruction::Mul => self.registers[0] = self.registers[0] + self.registers[1],
-                    Instruction::Div => self.registers[0] = self.registers[0] + self.registers[1],
-                    Instruction::Cmpi => self.registers[0] = (self.registers[0] == self.registers[1]) as i32,
+                    Instruction::Add => {
+                        self.registers[0] = self.registers[0] + self.registers[1];
+                        self.ip += 1;
+                    },
+                    Instruction::Sub => {
+                        self.registers[0] = self.registers[0] - self.registers[1];
+                        self.ip += 1;
+                    },
+                    Instruction::Mul => {
+                        self.registers[0] = self.registers[0] * self.registers[1];
+                        self.ip += 1;
+                    },
+                    Instruction::Div => {
+                        self.registers[0] = self.registers[0] / self.registers[1];
+                        self.ip += 1;
+                    },
+                    Instruction::Cmpi => {
+                        self.registers[0] = (self.registers[0] == self.registers[1]) as i32;
+                        self.ip += 1;
+                    },
                 }
             }
             Err(_) => {
@@ -84,7 +100,7 @@ impl CPU {
 
     pub fn write_register(&mut self, register: usize, memory: &mut [u8; 4096], address: usize) {
         if register > self.registers.len() {
-            panic!("invalid register, out of range. :: {}", register);
+            panic!("register write out of bounds.. : register {} does not exist.", register);
         }
 
         self.registers[register] = self.read_word(memory, address) as i32;
@@ -92,7 +108,7 @@ impl CPU {
 
     pub fn write_word(&mut self, memory: &mut [u8; 4096], address: usize, register: usize) {
         if address > memory.len() || address + 4 > memory.len() {
-            panic!("memory access out of bounds : {}", address);
+            panic!("memory write out of bounds : {}", address);
         }
 
         let value = self.registers[register];
@@ -102,18 +118,18 @@ impl CPU {
 
     pub fn read_word(&self, memory: &mut [u8; 4096], address: usize) -> usize {
         if address > memory.len() || address + 4 > memory.len() {
-            panic!("memory access out of bounds : {}", address);
+            panic!("memory read out of bounds : {}", address);
         }
 
         let bytes = &memory[address..address+4];
-        let value = u32::from_be_bytes([
+        let value = u32::from_le_bytes([
             bytes[0], bytes[1], bytes[2], bytes[3]
         ]);
         value as usize
     }
     
     pub fn write_word_direct(value: i32, memory: &mut [u8; 4096], address: usize) {
-        let bytes = value.to_be_bytes();
+        let bytes = value.to_le_bytes();
         memory[address..address+4].copy_from_slice(&bytes);
     }
 }
