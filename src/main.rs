@@ -75,6 +75,5 @@ mod tests {
         
         cpu.run(&mut mem);
         assert_eq!(mem.read_i32(100), 62500);
-    
     }
 }

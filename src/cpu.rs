@@ -28,37 +28,38 @@ impl CPU {
                         self.consume::<u8>();
                         let register = memory.read_i32(self.ip) as usize;
                         self.consume::<i32>();
-                        let address = memory.read_i32(self.ip) as i32;
+                        let address = memory.read_i32(self.ip) as usize;
                         self.consume::<i32>();
-                        memory.write_i32(register, address);
+                        memory.write_i32(address, self.registers[register]);
                     },
                     Instruction::Load => {
                         self.consume::<u8>();
                         let register = memory.read_i32(self.ip) as usize;
                         self.consume::<i32>();
-                        let address = memory.read_i32(self.ip) as i32;
+                        let value = memory.read_i32(self.ip);
                         self.consume::<i32>();
-                        self.write_register(register, address);
+                        self.write_register(register, value);
                     },
                     Instruction::Add => {
-                        self.registers[0] = self.registers[0] + self.registers[1];
                         self.consume::<u8>();
+                        self.registers[0] = self.registers[0] + self.registers[1];
                     },
                     Instruction::Sub => {
-                        self.registers[0] = self.registers[0] - self.registers[1];
                         self.consume::<u8>();
+                        self.registers[0] = self.registers[0] - self.registers[1];
                     },
                     Instruction::Mul => {
-                        self.registers[0] = self.registers[0] * self.registers[1];
                         self.consume::<u8>();
+                        self.registers[0] = self.registers[0] * self.registers[1];
                     },
                     Instruction::Div => {
-                        self.registers[0] = self.registers[0] / self.registers[1];
                         self.consume::<u8>();
+                        self.registers[0] = self.registers[0] / self.registers[1];
+                        self.registers[3] = self.registers[0] % self.registers[1];
                     },
                     Instruction::Cmpi => {
-                        self.registers[0] = (self.registers[0] == self.registers[1]) as i32;
                         self.consume::<u8>();
+                        self.registers[0] = (self.registers[0] == self.registers[1]) as i32;
                     },
                 }
             }
