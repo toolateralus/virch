@@ -1,4 +1,4 @@
-use crate::{opcodes::Instruction, memory::Memory, register::*};
+use crate::{opcodes::Opcode, memory::Memory, register::*};
 
 #[cfg(test)]
 mod test;
@@ -24,14 +24,14 @@ impl CPU {
     }
     pub fn cycle(&mut self, memory: &mut Memory) -> bool {
         let ins = memory.read_u8(self.ip);
-        let ins = Instruction::from(ins);
+        let ins = Opcode::from(ins);
     
         match ins {
             Ok(instruction) => {
                 match instruction {
-                    Instruction::Halt => { return false; },
-                    Instruction::Jump => { self.ip = memory.read_i32(self.ip + 1) as usize; },
-                    Instruction::Store => {
+                    Opcode::Halt => { return false; },
+                    Opcode::Jump => { self.ip = memory.read_i32(self.ip + 1) as usize; },
+                    Opcode::Store => {
                         self.consume::<u8>();
                         let register = memory.read_i32(self.ip) as usize;
                         self.consume::<i32>();
@@ -39,7 +39,7 @@ impl CPU {
                         self.consume::<i32>();
                         memory.write_i32(address, self.registers[register]);
                     },
-                    Instruction::Load => {
+                    Opcode::Load => {
                         self.consume::<u8>();
                         let register = memory.read_i32(self.ip) as usize;
                         self.consume::<i32>();
@@ -47,28 +47,28 @@ impl CPU {
                         self.consume::<i32>();
                         self.write_register(register, value);
                     },
-                    Instruction::Add => {
+                    Opcode::Add => {
                         self.consume::<u8>();
                         self.registers[A] = self.registers[A] + self.registers[B];
                     },
-                    Instruction::Sub => {
+                    Opcode::Sub => {
                         self.consume::<u8>();
                         self.registers[A] = self.registers[A] - self.registers[B];
                     },
-                    Instruction::Mul => {
+                    Opcode::Mul => {
                         self.consume::<u8>();
                         self.registers[A] = self.registers[A] * self.registers[B];
                     },
-                    Instruction::Div => {
+                    Opcode::Div => {
                         self.consume::<u8>();
                         self.registers[C] = self.registers[A] % self.registers[B];
                         self.registers[A] = self.registers[A] / self.registers[B];
                     },
-                    Instruction::Cmpi => {
+                    Opcode::Cmpi => {
                         self.consume::<u8>();
                         self.registers[A] = (self.registers[A] == self.registers[B]) as i32;
                     },
-                    Instruction::Nop => {
+                    Opcode::Nop => {
                         self.consume::<u8>();
                     },
                 }

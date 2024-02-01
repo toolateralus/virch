@@ -1,9 +1,7 @@
 use crate::memory::Memory;
-
-
 #[allow(dead_code)]
 #[repr(u8)]
-pub enum Instruction {
+pub enum Opcode {
     Halt,
     Jump,
     Store,
@@ -12,33 +10,30 @@ pub enum Instruction {
     Sub,
     Mul,
     Div,
-    Cmpi, // compare integer.
+    Cmpi, 
 	Nop,
 }
 
-impl Instruction {
-    pub fn from(value: u8) -> Result<Instruction, ()> {
+impl Opcode {
+    pub fn from(value: u8) -> Result<Opcode, ()> {
         match value {
-            0 => Ok(Instruction::Halt),
-            1 => Ok(Instruction::Jump),
-            2 => Ok(Instruction::Store),
-            3 => Ok(Instruction::Load),
-            4 => Ok(Instruction::Add),
-            5 => Ok(Instruction::Sub),
-            6 => Ok(Instruction::Mul),
-            7 => Ok(Instruction::Div),
-            8 => Ok(Instruction::Cmpi),
-            9 => Ok(Instruction::Nop),
+            0 => Ok(Opcode::Halt),
+            1 => Ok(Opcode::Jump),
+            2 => Ok(Opcode::Store),
+            3 => Ok(Opcode::Load),
+            4 => Ok(Opcode::Add),
+            5 => Ok(Opcode::Sub),
+            6 => Ok(Opcode::Mul),
+            7 => Ok(Opcode::Div),
+            8 => Ok(Opcode::Cmpi),
+            9 => Ok(Opcode::Nop),
             _ => Err(()),
         }
     }
 }
 
-
 pub type Program = Vec<u8>;
-pub struct ProgramBuilder {
-    program: Program,
-}
+pub struct ProgramBuilder { program: Program }
 
 #[allow(dead_code)]
 impl ProgramBuilder {
@@ -52,7 +47,7 @@ impl ProgramBuilder {
             memory.write_u8(i, *v as u8);
         }
     }
-    pub fn instruction(&mut self, ins : Instruction) {
+    pub fn instruction(&mut self, ins : Opcode) {
         let ins = ins as u8;
         self.program.push(ins);
     }

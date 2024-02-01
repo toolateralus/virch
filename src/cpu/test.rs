@@ -1,4 +1,4 @@
-use crate::{memory::Memory, opcodes::{Instruction, ProgramBuilder}, register::*};
+use crate::{memory::Memory, opcodes::{Opcode, ProgramBuilder}, register::*};
 use super::*;
 
 #[test]
@@ -12,7 +12,7 @@ fn cpu_initialization() {
 #[test]
 fn program_builder() {
 	let mut builder = ProgramBuilder::new();
-	builder.instruction(Instruction::Load);
+	builder.instruction(Opcode::Load);
 	builder.u32(6);
 	builder.i32(255);
 	builder.u8(245);
@@ -21,7 +21,7 @@ fn program_builder() {
 	builder.build(&mut memory);
 
 	let memory = memory.memory; // the inner array.
-	assert_eq!(memory[0], Instruction::Load as u8, "instruction (load) failed to build.");
+	assert_eq!(memory[0], Opcode::Load as u8, "instruction (load) failed to build.");
 	assert_eq!(memory[1..5], [0x06,0x00,0x00,0x00], "u32 failed to build.");
 	assert_eq!(memory[5..9], [0xFF,0x00,0x00,0x00], "i32 failed to build.");
 	assert_eq!(memory[9], 245, "u8 failed to build.");
@@ -29,7 +29,7 @@ fn program_builder() {
 #[test]
 fn multiplication() {
 	let mut builder = ProgramBuilder::new();
-	builder.instruction(Instruction::Mul);
+	builder.instruction(Opcode::Mul);
 	
 	let mut mem = Memory::new();
 	builder.build(&mut mem);
@@ -44,7 +44,7 @@ fn multiplication() {
 #[test]
 fn division() {
 	let mut builder = ProgramBuilder::new();
-	builder.instruction(Instruction::Div);
+	builder.instruction(Opcode::Div);
 	
 	let mut mem = Memory::new();
 	builder.build(&mut mem);
@@ -59,7 +59,7 @@ fn division() {
 #[test]
 fn modulus() {
 	let mut builder = ProgramBuilder::new();
-	builder.instruction(Instruction::Div);
+	builder.instruction(Opcode::Div);
 	
 	let mut mem = Memory::new();
 	builder.build(&mut mem);
@@ -74,7 +74,7 @@ fn modulus() {
 #[test]
 fn addition() {
 	let mut builder = ProgramBuilder::new();
-	builder.instruction(Instruction::Add);
+	builder.instruction(Opcode::Add);
 	
 	let mut mem = Memory::new();
 	builder.build(&mut mem);
@@ -89,7 +89,7 @@ fn addition() {
 #[test]
 fn subtraction() {
 	let mut builder = ProgramBuilder::new();
-	builder.instruction(Instruction::Sub);
+	builder.instruction(Opcode::Sub);
 	
 	let mut mem = Memory::new();
 	builder.build(&mut mem);
@@ -104,7 +104,7 @@ fn subtraction() {
 #[test]
 pub fn loading() {
 	let mut builder = ProgramBuilder::new();
-	builder.instruction(Instruction::Load);
+	builder.instruction(Opcode::Load);
 	builder.u32(0);
 	builder.i32(123);
 	
@@ -119,7 +119,7 @@ pub fn loading() {
 #[test]
 fn storing() {
 	let mut builder = ProgramBuilder::new();
-	builder.instruction(Instruction::Store);
+	builder.instruction(Opcode::Store);
 	builder.u32(0);
 	builder.i32(100);
 	
@@ -135,7 +135,7 @@ fn storing() {
 #[test]
 fn jumping() {
 	let mut builder = ProgramBuilder::new();
-	builder.instruction(Instruction::Jump);
+	builder.instruction(Opcode::Jump);
 	builder.i32(100);
 	
 	let mut mem = Memory::new();
@@ -149,7 +149,7 @@ fn jumping() {
 #[test]
 fn compare_equal() {
 	let mut builder = ProgramBuilder::new();
-	builder.instruction(Instruction::Cmpi);
+	builder.instruction(Opcode::Cmpi);
 	
 	let mut mem = Memory::new();
 	builder.build(&mut mem);
@@ -164,7 +164,7 @@ fn compare_equal() {
 #[test]
 fn compare_not_equal() {
 	let mut builder = ProgramBuilder::new();
-	builder.instruction(Instruction::Cmpi);
+	builder.instruction(Opcode::Cmpi);
 	
 	let mut mem = Memory::new();
 	builder.build(&mut mem);
@@ -179,7 +179,7 @@ fn compare_not_equal() {
 #[test]
 fn halting() {
 	let mut builder = ProgramBuilder::new();
-	builder.instruction(Instruction::Halt);
+	builder.instruction(Opcode::Halt);
 	
 	let mut mem = Memory::new();
 	builder.build(&mut mem);
@@ -190,7 +190,7 @@ fn halting() {
 #[test]
 fn no_operation() {
 	let mut builder = ProgramBuilder::new();
-	builder.instruction(Instruction::Nop);
+	builder.instruction(Opcode::Nop);
 	
 	let mut mem = Memory::new();
 	builder.build(&mut mem);
@@ -201,9 +201,9 @@ fn no_operation() {
 #[test]
 fn cycle_counting() {
 	let mut builder = ProgramBuilder::new();
-	builder.instruction(Instruction::Nop);
-	builder.instruction(Instruction::Nop);
-	builder.instruction(Instruction::Nop);
+	builder.instruction(Opcode::Nop);
+	builder.instruction(Opcode::Nop);
+	builder.instruction(Opcode::Nop);
 	
 	let mut mem = Memory::new();
 	builder.build(&mut mem);

@@ -1,4 +1,4 @@
-lod a, 250
-lod b, 250
+ld a, 100
+ld b, 125
 mul
-str a, 600 
+str a, 100
