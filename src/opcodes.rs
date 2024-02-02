@@ -1,32 +1,29 @@
 use crate::memory::Memory;
 #[allow(dead_code)]
+#[derive(Debug)]
 #[repr(u8)]
 pub enum Opcode {
     Halt,
     Jump,
-    Store,
-    Load,
-    Add,
-    Sub,
-    Mul,
-    Div,
-    Cmpi, 
-	Nop,
+	Store,
+	Load,
+	LoadPointer,
+	LoadRegsiter,
+	Add,
+    Subtract,
+    Multiply,
+    Divide,
+    CompareInteger, 
+	NoOperation,
+	Push,
+	Pop,
+	Count,
 }
 
 impl Opcode {
     pub fn from(value: u8) -> Result<Opcode, ()> {
         match value {
-            0 => Ok(Opcode::Halt),
-            1 => Ok(Opcode::Jump),
-            2 => Ok(Opcode::Store),
-            3 => Ok(Opcode::Load),
-            4 => Ok(Opcode::Add),
-            5 => Ok(Opcode::Sub),
-            6 => Ok(Opcode::Mul),
-            7 => Ok(Opcode::Div),
-            8 => Ok(Opcode::Cmpi),
-            9 => Ok(Opcode::Nop),
+            v if v <= Opcode::Count as u8 => Ok(unsafe { std::mem::transmute(v) }),
             _ => Err(()),
         }
     }
@@ -47,23 +44,27 @@ impl ProgramBuilder {
             memory.write_u8(i, *v as u8);
         }
     }
-    pub fn instruction(&mut self, ins : Opcode) {
+    pub fn instruction(&mut self, ins : Opcode) -> &mut Self {
         let ins = ins as u8;
         self.program.push(ins);
+		return &mut *self;
     }
-    pub fn u8(&mut self, byte : u8) {
+    pub fn u8(&mut self, byte : u8) -> &mut Self {
         self.program.push(byte);
+		return &mut *self;
     }
-    pub fn u32(&mut self, int : u32) {
+    pub fn u32(&mut self, int : u32) -> &mut Self {
         let bytes = u32::to_le_bytes(int);
         for byte in bytes.iter() {
             self.program.push(*byte);
         }
+		return &mut *self;
     }
-    pub fn i32(&mut self, int : i32) {
+    pub fn i32(&mut self, int : i32) -> &mut Self {
         let bytes = i32::to_le_bytes(int);
         for byte in bytes.iter() {
             self.program.push(*byte);
         }
+		return &mut *self;
     }
 }

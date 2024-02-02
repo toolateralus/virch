@@ -1,9 +1,11 @@
+use std::mem::size_of;
+
 use crate::{opcodes::Opcode, memory::Memory, register::*};
 
 #[cfg(test)]
 mod test;
 
-pub const NUM_REGISTERS : usize = 13;
+pub const NUM_REGISTERS : usize = 14;
 
 pub struct CPU {
     pub ip: usize,
@@ -29,6 +31,9 @@ impl CPU {
         match ins {
             Ok(instruction) => {
                 match instruction {
+					Opcode::Count => {
+						panic!("unexpected data in program : {:#?} at {}", memory.read_i32(self.ip), self.ip);
+					}
                     Opcode::Halt => { return false; },
                     Opcode::Jump => { self.ip = memory.read_i32(self.ip + 1) as usize; },
                     Opcode::Store => {
@@ -37,7 +42,7 @@ impl CPU {
                         self.consume::<i32>();
                         let address = memory.read_i32(self.ip) as usize;
                         self.consume::<i32>();
-                        memory.write_i32(address, self.registers[register]);
+                        memory.write_i32(address, self.read_register(register));
                     },
                     Opcode::Load => {
                         self.consume::<u8>();
@@ -47,30 +52,66 @@ impl CPU {
                         self.consume::<i32>();
                         self.write_register(register, value);
                     },
+					Opcode::LoadPointer => {
+						self.consume::<u8>();
+                        let register = memory.read_i32(self.ip) as usize;
+                        self.consume::<i32>();
+                        let addr = memory.read_i32(self.ip);
+                        self.consume::<i32>();
+						let value = memory.read_i32(addr as usize);
+                        self.write_register(register, value);
+					},
+                    Opcode::LoadRegsiter => {
+						self.consume::<u8>();
+						let register_lhs = memory.read_i32(self.ip) as usize;
+						self.consume::<i32>();
+						let register_rhs = memory.read_i32(self.ip) as usize;
+						self.consume::<i32>();
+						let value = self.read_register(register_rhs);
+						self.write_register(register_lhs, value);
+					},
                     Opcode::Add => {
                         self.consume::<u8>();
                         self.registers[A] = self.registers[A] + self.registers[B];
                     },
-                    Opcode::Sub => {
+                    Opcode::Subtract => {
                         self.consume::<u8>();
                         self.registers[A] = self.registers[A] - self.registers[B];
                     },
-                    Opcode::Mul => {
+                    Opcode::Multiply => {
                         self.consume::<u8>();
                         self.registers[A] = self.registers[A] * self.registers[B];
                     },
-                    Opcode::Div => {
+                    Opcode::Divide => {
                         self.consume::<u8>();
                         self.registers[C] = self.registers[A] % self.registers[B];
                         self.registers[A] = self.registers[A] / self.registers[B];
                     },
-                    Opcode::Cmpi => {
+                    Opcode::CompareInteger => {
                         self.consume::<u8>();
                         self.registers[A] = (self.registers[A] == self.registers[B]) as i32;
                     },
-                    Opcode::Nop => {
+                    Opcode::NoOperation => {
                         self.consume::<u8>();
                     },
+                    Opcode::Push => {
+						self.consume::<u8>();
+						let register = memory.read_i32(self.ip);
+						self.consume::<i32>();
+						let mut sp = self.read_register(SP);
+						sp -= size_of::<i32>() as i32;
+						self.write_register(SP, sp);
+						memory.write_i32(sp as usize, self.read_register(register as usize));
+					}
+                    Opcode::Pop => {
+						self.consume::<u8>();
+						let register = memory.read_i32(self.ip);
+						self.consume::<i32>();
+						let mut sp = self.read_register(SP);
+						self.write_register(register as usize, memory.read_i32(sp as usize));
+						sp += size_of::<i32>() as i32;
+						self.write_register(SP, sp);
+					}
                 }
             }
             Err(_) => {

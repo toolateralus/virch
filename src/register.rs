@@ -19,3 +19,5 @@ pub const R9 : usize = 10;
 #[allow(dead_code)]
 pub const R10 : usize = 11;
 pub const RT : usize = 12;
+#[allow(dead_code)]
+pub const BSP : usize = 13;

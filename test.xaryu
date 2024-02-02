@@ -1,4 +1,11 @@
-ld a, 100
-ld b, 125
+lod sp, 4096
+
+lod a, 10
+lod b, 10
 mul
-str a, 100
+
+push a
+lod a, 0
+pop a
+
+hlt

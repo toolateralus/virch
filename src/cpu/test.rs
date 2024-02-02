@@ -12,10 +12,7 @@ fn cpu_initialization() {
 #[test]
 fn program_builder() {
 	let mut builder = ProgramBuilder::new();
-	builder.instruction(Opcode::Load);
-	builder.u32(6);
-	builder.i32(255);
-	builder.u8(245);
+	builder.instruction(Opcode::Load).u32(6).i32(255).u8(245);
 	
 	let mut memory = Memory::new();
 	builder.build(&mut memory);
@@ -29,7 +26,7 @@ fn program_builder() {
 #[test]
 fn multiplication() {
 	let mut builder = ProgramBuilder::new();
-	builder.instruction(Opcode::Mul);
+	builder.instruction(Opcode::Multiply);
 	
 	let mut mem = Memory::new();
 	builder.build(&mut mem);
@@ -44,7 +41,7 @@ fn multiplication() {
 #[test]
 fn division() {
 	let mut builder = ProgramBuilder::new();
-	builder.instruction(Opcode::Div);
+	builder.instruction(Opcode::Divide);
 	
 	let mut mem = Memory::new();
 	builder.build(&mut mem);
@@ -59,7 +56,7 @@ fn division() {
 #[test]
 fn modulus() {
 	let mut builder = ProgramBuilder::new();
-	builder.instruction(Opcode::Div);
+	builder.instruction(Opcode::Divide);
 	
 	let mut mem = Memory::new();
 	builder.build(&mut mem);
@@ -89,7 +86,7 @@ fn addition() {
 #[test]
 fn subtraction() {
 	let mut builder = ProgramBuilder::new();
-	builder.instruction(Opcode::Sub);
+	builder.instruction(Opcode::Subtract);
 	
 	let mut mem = Memory::new();
 	builder.build(&mut mem);
@@ -104,9 +101,9 @@ fn subtraction() {
 #[test]
 pub fn loading() {
 	let mut builder = ProgramBuilder::new();
-	builder.instruction(Opcode::Load);
-	builder.u32(0);
-	builder.i32(123);
+	builder.instruction(Opcode::Load)
+	.u32(0)
+	.i32(123);
 	
 	let mut mem = Memory::new();
 	builder.build(&mut mem);
@@ -119,9 +116,9 @@ pub fn loading() {
 #[test]
 fn storing() {
 	let mut builder = ProgramBuilder::new();
-	builder.instruction(Opcode::Store);
-	builder.u32(0);
-	builder.i32(100);
+	builder.instruction(Opcode::Store)
+	.u32(0)
+	.i32(100);
 	
 	let mut mem = Memory::new();
 	builder.build(&mut mem);
@@ -135,8 +132,8 @@ fn storing() {
 #[test]
 fn jumping() {
 	let mut builder = ProgramBuilder::new();
-	builder.instruction(Opcode::Jump);
-	builder.i32(100);
+	builder.instruction(Opcode::Jump)
+	.i32(100);
 	
 	let mut mem = Memory::new();
 	builder.build(&mut mem);
@@ -149,7 +146,7 @@ fn jumping() {
 #[test]
 fn compare_equal() {
 	let mut builder = ProgramBuilder::new();
-	builder.instruction(Opcode::Cmpi);
+	builder.instruction(Opcode::CompareInteger);
 	
 	let mut mem = Memory::new();
 	builder.build(&mut mem);
@@ -164,7 +161,7 @@ fn compare_equal() {
 #[test]
 fn compare_not_equal() {
 	let mut builder = ProgramBuilder::new();
-	builder.instruction(Opcode::Cmpi);
+	builder.instruction(Opcode::CompareInteger);
 	
 	let mut mem = Memory::new();
 	builder.build(&mut mem);
@@ -190,7 +187,7 @@ fn halting() {
 #[test]
 fn no_operation() {
 	let mut builder = ProgramBuilder::new();
-	builder.instruction(Opcode::Nop);
+	builder.instruction(Opcode::NoOperation);
 	
 	let mut mem = Memory::new();
 	builder.build(&mut mem);
@@ -201,9 +198,9 @@ fn no_operation() {
 #[test]
 fn cycle_counting() {
 	let mut builder = ProgramBuilder::new();
-	builder.instruction(Opcode::Nop);
-	builder.instruction(Opcode::Nop);
-	builder.instruction(Opcode::Nop);
+	builder.instruction(Opcode::NoOperation)
+	.instruction(Opcode::NoOperation)
+	.instruction(Opcode::NoOperation);
 	
 	let mut mem = Memory::new();
 	builder.build(&mut mem);
@@ -214,4 +211,71 @@ fn cycle_counting() {
 	cpu.cycle(&mut mem);
 	
 	assert_eq!(cpu.read_register(RT), 3);
+}
+#[test]
+pub fn load_pointer() {
+	let mut builder = ProgramBuilder::new();
+	builder.instruction(Opcode::LoadPointer)
+	.u32(0)
+	.i32(9)
+	.i32(76123);
+	
+	let mut mem = Memory::new();
+	builder.build(&mut mem);
+	
+	let mut cpu = CPU::new();
+	cpu.cycle(&mut mem);
+	
+	assert_eq!(cpu.read_register(A), 76123);
+}
+#[test]
+pub fn load_register() {
+	let mut builder = ProgramBuilder::new();
+	builder.instruction(Opcode::LoadRegsiter)
+	.u32(0)
+	.u32(1);
+	
+	let mut mem = Memory::new();
+	builder.build(&mut mem);
+	
+	let mut cpu = CPU::new();
+	cpu.write_register(B, 4312);
+	cpu.cycle(&mut mem);
+	
+	assert_eq!(cpu.read_register(A), 4312);
+}
+#[test]
+pub fn push() {
+	let mut builder = ProgramBuilder::new();
+	// push value from register A on to the stack
+	builder.instruction(Opcode::Push)
+	.u32(A as u32); 
+	
+	let mut mem = Memory::new();
+	builder.build(&mut mem);
+	
+	let mut cpu = CPU::new();
+	cpu.write_register(A, 513);
+	cpu.write_register(SP, 9);
+	cpu.cycle(&mut mem);
+	
+	assert_eq!(mem.read_i32(5), 513);
+}
+#[test]
+pub fn pop() {
+	let mut builder = ProgramBuilder::new();
+	// push value from register A on to the stack
+	builder.instruction(Opcode::Pop)
+	.u32(A as u32)
+	// prebuilt stack starting at 9, first element at 5
+	.i32(426);
+	
+	let mut mem = Memory::new();
+	builder.build(&mut mem);
+	
+	let mut cpu = CPU::new();
+	cpu.write_register(SP, 5);
+	cpu.cycle(&mut mem);
+	
+	assert_eq!(cpu.read_register(A), 426);
 }
